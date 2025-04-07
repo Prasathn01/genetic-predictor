@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Advanced Genetic Trait Predictor</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #eef2f3;
+      text-align: center;
+      padding: 2rem;
+    }
+    h1 {
+      color: #333;
+    }
+    .container {
+      background: white;
+      padding: 2rem;
+      border-radius: 20px;
+      max-width: 600px;
+      margin: auto;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    input, select {
+      padding: 0.5rem;
+      margin: 0.5rem;
+      font-size: 1rem;
+    }
+    button {
+      padding: 0.5rem 1rem;
+      font-size: 1rem;
+      cursor: pointer;
+      margin-top: 1rem;
+    }
+    #results {
+      margin-top: 2rem;
+      text-align: left;
+    }
+    .square {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+    .cell {
+      border: 1px solid #ccc;
+      padding: 1rem;
+      background-color: #f9f9f9;
+      border-radius: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Genetic Trait Predictor</h1>
+    <p>Predict dominant/recessive traits from parent genotypes</p>
+
+    <label for="trait">Select Trait:</label>
+    <select id="trait">
+      <option value="Eye Color">Eye Color (A = Brown, a = Blue)</option>
+      <option value="Dimples">Dimples (D = Has Dimples, d = No Dimples)</option>
+    </select>
+    <br>
+
+    <input id="parent1" placeholder="Parent 1 Genotype (e.g. Aa)" maxlength="2" />
+    <input id="parent2" placeholder="Parent 2 Genotype (e.g. Aa)" maxlength="2" />
+    <br>
+    <button onclick="predict()">Predict</button>
+
+    <div id="results"></div>
+  </div>
+
+  <script>
+    function predict() {
+      const p1 = document.getElementById('parent1').value.trim().toUpperCase();
+      const p2 = document.getElementById('parent2').value.trim().toUpperCase();
+      const traitName = document.getElementById('trait').value;
+
+      if (p1.length !== 2 || p2.length !== 2) {
+        alert("Please enter valid 2-letter genotypes like Aa, AA, or aa.");
+        return;
+      }
+
+      const combos = [];
+      for (let a of p1) {
+        for (let b of p2) {
+          combos.push([a, b].sort().join(""));
+        }
+      }
+
+      const countMap = {};
+      combos.forEach(g => countMap[g] = (countMap[g] || 0) + 1);
+
+      let html = `<h2>${traitName} Prediction</h2>`;
+      html += `<div class="square">`;
+      combos.forEach(geno => {
+        const pheno = geno.includes(geno[0].toUpperCase()) && geno[0] !== geno[1] || geno === geno.toUpperCase()
+          ? "Dominant Trait"
+          : "Recessive Trait";
+        html += `<div class="cell"><strong>${geno}</strong><br>${pheno}</div>`;
+      });
+      html += `</div>`;
+
+      html += `<p><strong>Summary:</strong></p>`;
+      for (let genotype in countMap) {
+        const percent = (countMap[genotype] / 4) * 100;
+        const traitDesc = genotype.includes("A") || genotype.includes("D")
+          ? "Dominant Trait"
+          : "Recessive Trait";
+        html += `<p>${genotype}: ${percent}% – ${traitDesc}</p>`;
+      }
+
+      document.getElementById('results').innerHTML = html;
+    }
+  </script>
+</body>
+</html>
